@@ -224,6 +224,40 @@
             outline: 2px solid var(--primary-color);
             outline-offset: -1px;
         }
+
+        .svg-metadata {
+            margin-top: 1rem;
+        }
+
+        .metadata-control {
+            margin: 1rem 0;
+        }
+
+        .metadata-control input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .metadata-control input[type="text"]:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: -1px;
+        }
+
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .toggle-wrapper input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
     </style>
 </head>
 <body>
@@ -245,6 +279,30 @@
         <h3>Breakpoint Settings</h3>
         <label for="breakpoint">Mobile Breakpoint (px):</label>
         <input type="number" id="breakpoint" value="768" min="300" max="2000" step="1">
+        
+        <div class="svg-metadata">
+            <div class="metadata-control">
+                <div class="toggle-wrapper">
+                    <input type="checkbox" id="includeSvgTitle" checked>
+                    <label for="includeSvgTitle">Include Title</label>
+                </div>
+                <input type="text" 
+                    id="svgTitleInput" 
+                    value="Responsive Banner Image" 
+                    placeholder="Enter SVG title">
+            </div>
+            
+            <div class="metadata-control">
+                <div class="toggle-wrapper">
+                    <input type="checkbox" id="includeSvgDesc" checked>
+                    <label for="includeSvgDesc">Include Description</label>
+                </div>
+                <input type="text" 
+                    id="svgDescInput" 
+                    value="Banner image that switches between desktop and mobile versions based on screen size"
+                    placeholder="Enter SVG description">
+            </div>
+        </div>
     </div>
 
     <div class="preview">
@@ -321,15 +379,27 @@
             const viewBoxHeight = 100 / aspectRatio;
             const breakpoint = document.getElementById('breakpoint').value;
             
+            const includeSvgTitle = document.getElementById('includeSvgTitle').checked;
+            const includeSvgDesc = document.getElementById('includeSvgDesc').checked;
+            const svgTitle = document.getElementById('svgTitleInput').value;
+            const svgDesc = document.getElementById('svgDescInput').value;
+            
+            const titleAndDescAttrs = (includeSvgTitle || includeSvgDesc) 
+                ? `aria-labelledby="${[
+                    includeSvgTitle ? 'svgTitle' : '',
+                    includeSvgDesc ? 'svgDesc' : ''
+                  ].filter(Boolean).join(' ')}"` 
+                : '';
+            
             return `<svg xmlns="http://www.w3.org/2000/svg" 
             xmlns:xlink="http://www.w3.org/1999/xlink" 
             viewBox="0 0 100 ${viewBoxHeight}"
             preserveAspectRatio="xMidYMid slice"
             role="img"
-            aria-labelledby="svgTitle svgDesc">
+            ${titleAndDescAttrs}>
             
-            <title id="svgTitle">Responsive Banner Image</title>
-            <desc id="svgDesc">Banner image that switches between desktop and mobile versions based on screen size</desc>
+            ${includeSvgTitle ? `<title id="svgTitle">${svgTitle}</title>` : ''}
+            ${includeSvgDesc ? `<desc id="svgDesc">${svgDesc}</desc>` : ''}
             
             <defs>
                 <style type="text/css">

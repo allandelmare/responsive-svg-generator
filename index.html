@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive SVG Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .preview {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 20px 0;
+        }
+        #svgPreview {
+            width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Responsive SVG Generator</h1>
+    
+    <div class="input-group">
+        <h3>Desktop Image</h3>
+        <input type="file" id="desktopInput" accept="image/*">
+        <div id="desktopInfo"></div>
+    </div>
+
+    <div class="input-group">
+        <h3>Mobile Image</h3>
+        <input type="file" id="mobileInput" accept="image/*">
+        <div id="mobileInfo"></div>
+    </div>
+
+    <div class="preview">
+        <h3>Preview</h3>
+        <div id="svgPreview"></div>
+    </div>
+
+    <button id="downloadBtn" disabled>Download SVG</button>
+
+    <script>
+        let desktopImage = null;
+        let mobileImage = null;
+
+        async function handleImageUpload(file, infoElement) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        const aspectRatio = (img.width / img.height).toFixed(3);
+                        infoElement.textContent = `Dimensions: ${img.width}x${img.height} (Aspect ratio: ${aspectRatio})`;
+                        resolve({
+                            base64: e.target.result,
+                            width: img.width,
+                            height: img.height
+                        });
+                    };
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function generateSVG(desktop, mobile) {
+            const aspectRatio = desktop.width / desktop.height;
+            const viewBoxHeight = 100 / aspectRatio;
+            
+            return `<svg xmlns="http://www.w3.org/2000/svg" 
+                        xmlns:xlink="http://www.w3.org/1999/xlink" 
+                        viewBox="0 0 100 ${viewBoxHeight}"
+                        preserveAspectRatio="xMidYMid slice"
+                        role="img"
+                        aria-labelledby="svgTitle svgDesc">
+                
+                <title id="svgTitle">Responsive Banner Image</title>
+                <desc id="svgDesc">Banner image that switches between desktop and mobile versions based on screen size</desc>
+                
+                <defs>
+                    <style type="text/css">
+                        svg {
+                            width: 100%;
+                            height: auto;
+                            display: block;
+                            max-width: 100%;
+                        }
+                        @media (max-width: 768px) {
+                            #desktop-image { display: none }
+                            #mobile-image { display: block }
+                        }
+                        @media (min-width: 769px) {
+                            #desktop-image { display: block }
+                            #mobile-image { display: none }
+                        }
+                    </style>
+                </defs>
+                
+                <g id="desktop-image">
+                    <image width="100" height="${viewBoxHeight}" 
+                           preserveAspectRatio="xMidYMid slice"
+                           xlink:href="${desktop.base64}" />
+                </g>
+                
+                <g id="mobile-image">
+                    <image width="100" height="${viewBoxHeight}" 
+                           preserveAspectRatio="xMidYMid slice"
+                           xlink:href="${mobile.base64}" />
+                </g>
+            </svg>`;
+        }
+
+        function updatePreview() {
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (desktopImage && mobileImage) {
+                const svg = generateSVG(desktopImage, mobileImage);
+                document.getElementById('svgPreview').innerHTML = svg;
+                downloadBtn.disabled = false;
+            }
+        }
+
+        function downloadSVG() {
+            if (!desktopImage || !mobileImage) return;
+            
+            const svg = generateSVG(desktopImage, mobileImage);
+            const blob = new Blob([svg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'responsive-banner.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('desktopInput').addEventListener('change', async (e) => {
+            if (e.target.files[0]) {
+                desktopImage = await handleImageUpload(e.target.files[0], document.getElementById('desktopInfo'));
+                updatePreview();
+            }
+        });
+
+        document.getElementById('mobileInput').addEventListener('change', async (e) => {
+            if (e.target.files[0]) {
+                mobileImage = await handleImageUpload(e.target.files[0], document.getElementById('mobileInfo'));
+                updatePreview();
+            }
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', downloadSVG);
+    </script>
+</body>
+</html> 

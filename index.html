@@ -5,35 +5,224 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsive SVG Generator</title>
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --border-color: #e0e0e0;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #333333;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+        }
+
         .input-group {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
+
+        .input-group h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
         .preview {
-            border: 1px solid #ccc;
-            padding: 10px;
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin: 20px 0;
         }
-        #svgPreview {
-            width: 100%;
-            height: auto;
-            border: 1px solid #eee;
+
+        .preview h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
         }
+
+        .preview-container {
+            border: 2px dashed var(--border-color);
+            border-radius: 6px;
+            overflow: visible;
+            position: relative;
+            width: 1000px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        #svgPreview {
+            border: none;
+            min-height: auto;
+            width: 100%;
+        }
+
+        #svgPreview svg {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        #desktopInfo, #mobileInfo {
+            margin-top: 10px;
+            padding: 12px;
+            background-color: var(--background-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
         button {
-            padding: 10px 20px;
-            background-color: #007bff;
+            padding: 1rem 2rem;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
+
+        button:hover:not(:disabled) {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
         button:disabled {
             background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #downloadBtn {
+            display: block;
+            margin: 20px auto;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+        }
+
+        .preview-controls {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .resize-handle {
+            position: absolute;
+            right: -12px;
+            top: 0;
+            bottom: 0;
+            width: 24px;
+            cursor: ew-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e0e0;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+        }
+
+        .resize-handle::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-right: 8px solid var(--primary-color);
+            transform: translateX(-2px);
+        }
+
+        .resize-handle:hover {
+            background-color: #d0d0d0;
+        }
+
+        .resize-handle:hover::after {
+            border-right-color: var(--secondary-color);
+        }
+
+        .resize-handle::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            top: 50%;
+            height: 40px;
+            transform: translateY(-50%);
+            background: linear-gradient(
+                to right,
+                #ccc 1px,
+                transparent 1px
+            );
+            background-size: 4px 100%;
+            opacity: 0.5;
+        }
+
+        input[type="range"] {
+            flex: 1;
+        }
+
+        #widthDisplay {
+            font-size: 0.9rem;
+            color: #666;
+            font-family: monospace;
+        }
+
+        .preview-wrapper .mobile-view,
+        .preview-wrapper .desktop-view {
+            display: none;
+            width: 100%;
+        }
+
+        .width-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 8px;
+        }
+
+        #widthInput {
+            width: 70px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        #widthInput:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: -1px;
         }
     </style>
 </head>
@@ -52,9 +241,23 @@
         <div id="mobileInfo"></div>
     </div>
 
+    <div class="input-group">
+        <h3>Breakpoint Settings</h3>
+        <label for="breakpoint">Mobile Breakpoint (px):</label>
+        <input type="number" id="breakpoint" value="768" min="300" max="2000" step="1">
+    </div>
+
     <div class="preview">
-        <h3>Preview</h3>
-        <div id="svgPreview"></div>
+        <h3>Preview 
+            <div class="width-control">
+                <input type="number" id="widthInput" min="300" max="1200" step="1">
+                <span>px</span>
+            </div>
+        </h3>
+        <div class="preview-container">
+            <div id="svgPreview"></div>
+            <div class="resize-handle"></div>
+        </div>
     </div>
 
     <button id="downloadBtn" disabled>Download SVG</button>
@@ -88,47 +291,77 @@
             const aspectRatio = desktop.width / desktop.height;
             const viewBoxHeight = 100 / aspectRatio;
             
-            return `<svg xmlns="http://www.w3.org/2000/svg" 
+            return `
+                <div class="preview-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
                         xmlns:xlink="http://www.w3.org/1999/xlink" 
                         viewBox="0 0 100 ${viewBoxHeight}"
                         preserveAspectRatio="xMidYMid slice"
                         role="img"
-                        aria-labelledby="svgTitle svgDesc">
-                
-                <title id="svgTitle">Responsive Banner Image</title>
-                <desc id="svgDesc">Banner image that switches between desktop and mobile versions based on screen size</desc>
-                
-                <defs>
-                    <style type="text/css">
-                        svg {
-                            width: 100%;
-                            height: auto;
-                            display: block;
-                            max-width: 100%;
-                        }
-                        @media (max-width: 768px) {
-                            #desktop-image { display: none }
-                            #mobile-image { display: block }
-                        }
-                        @media (min-width: 769px) {
-                            #desktop-image { display: block }
-                            #mobile-image { display: none }
-                        }
-                    </style>
-                </defs>
-                
-                <g id="desktop-image">
-                    <image width="100" height="${viewBoxHeight}" 
-                           preserveAspectRatio="xMidYMid slice"
-                           xlink:href="${desktop.base64}" />
-                </g>
-                
-                <g id="mobile-image">
-                    <image width="100" height="${viewBoxHeight}" 
-                           preserveAspectRatio="xMidYMid slice"
-                           xlink:href="${mobile.base64}" />
-                </g>
-            </svg>`;
+                        class="desktop-view">
+                        <image width="100" height="${viewBoxHeight}" 
+                            preserveAspectRatio="xMidYMid slice"
+                            xlink:href="${desktop.base64}" />
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        xmlns:xlink="http://www.w3.org/1999/xlink" 
+                        viewBox="0 0 100 ${viewBoxHeight}"
+                        preserveAspectRatio="xMidYMid slice"
+                        role="img"
+                        class="mobile-view">
+                        <image width="100" height="${viewBoxHeight}" 
+                            preserveAspectRatio="xMidYMid slice"
+                            xlink:href="${mobile.base64}" />
+                    </svg>
+                </div>`;
+        }
+
+        function generateDownloadSVG(desktop, mobile) {
+            const aspectRatio = desktop.width / desktop.height;
+            const viewBoxHeight = 100 / aspectRatio;
+            const breakpoint = document.getElementById('breakpoint').value;
+            
+            return `<svg xmlns="http://www.w3.org/2000/svg" 
+            xmlns:xlink="http://www.w3.org/1999/xlink" 
+            viewBox="0 0 100 ${viewBoxHeight}"
+            preserveAspectRatio="xMidYMid slice"
+            role="img"
+            aria-labelledby="svgTitle svgDesc">
+            
+            <title id="svgTitle">Responsive Banner Image</title>
+            <desc id="svgDesc">Banner image that switches between desktop and mobile versions based on screen size</desc>
+            
+            <defs>
+                <style type="text/css">
+                    svg {
+                        width: 100%;
+                        height: auto;
+                        display: block;
+                        max-width: 100%;
+                    }
+                    @media (max-width: ${breakpoint}px) {
+                        #desktop-image { display: none }
+                        #mobile-image { display: block }
+                    }
+                    @media (min-width: ${parseInt(breakpoint) + 1}px) {
+                        #desktop-image { display: block }
+                        #mobile-image { display: none }
+                    }
+                </style>
+            </defs>
+            
+            <g id="desktop-image">
+                <image width="100" height="${viewBoxHeight}" 
+                       preserveAspectRatio="xMidYMid slice"
+                       xlink:href="${desktop.base64}" />
+            </g>
+            
+            <g id="mobile-image">
+                <image width="100" height="${viewBoxHeight}" 
+                       preserveAspectRatio="xMidYMid slice"
+                       xlink:href="${mobile.base64}" />
+            </g>
+        </svg>`;
         }
 
         function updatePreview() {
@@ -137,13 +370,17 @@
                 const svg = generateSVG(desktopImage, mobileImage);
                 document.getElementById('svgPreview').innerHTML = svg;
                 downloadBtn.disabled = false;
+                
+                // Initialize visibility based on current width
+                const width = container.offsetWidth;
+                updatePreviewVisibility(width);
             }
         }
 
         function downloadSVG() {
             if (!desktopImage || !mobileImage) return;
             
-            const svg = generateSVG(desktopImage, mobileImage);
+            const svg = generateDownloadSVG(desktopImage, mobileImage);
             const blob = new Blob([svg], { type: 'image/svg+xml' });
             const url = URL.createObjectURL(blob);
             
@@ -171,6 +408,79 @@
         });
 
         document.getElementById('downloadBtn').addEventListener('click', downloadSVG);
+
+        document.getElementById('breakpoint').addEventListener('input', function() {
+            const width = container.offsetWidth;
+            updatePreviewVisibility(width);
+        });
+
+        const container = document.querySelector('.preview-container');
+        const handle = document.querySelector('.resize-handle');
+        const widthInput = document.getElementById('widthInput');
+        let isResizing = false;
+        let startWidth, startX;
+
+        handle.addEventListener('mousedown', initResize);
+
+        function initResize(e) {
+            isResizing = true;
+            startX = e.clientX;
+            startWidth = container.offsetWidth;
+            
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', stopResize);
+        }
+
+        function resize(e) {
+            if (!isResizing) return;
+            
+            const width = startWidth + (e.clientX - startX);
+            const maxWidth = Math.min(1200, container.parentElement.offsetWidth);
+            const newWidth = Math.max(300, Math.min(width, maxWidth));
+            
+            container.style.width = newWidth + 'px';
+            widthInput.value = Math.round(newWidth);
+            updatePreviewVisibility(newWidth);
+        }
+
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
+        function updatePreviewVisibility(width) {
+            const breakpoint = parseInt(document.getElementById('breakpoint').value);
+            const desktopView = document.querySelector('.desktop-view');
+            const mobileView = document.querySelector('.mobile-view');
+            
+            if (desktopView && mobileView) {
+                if (width <= breakpoint) {
+                    desktopView.style.display = 'none';
+                    mobileView.style.display = 'block';
+                } else {
+                    desktopView.style.display = 'block';
+                    mobileView.style.display = 'none';
+                }
+            }
+        }
+
+        // Update width display on window resize
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                widthInput.value = Math.round(entry.contentRect.width);
+            }
+        });
+
+        resizeObserver.observe(container);
+
+        // Add input handler
+        widthInput.addEventListener('change', function() {
+            const newWidth = Math.max(300, Math.min(this.value, 1200));
+            this.value = newWidth;
+            container.style.width = newWidth + 'px';
+            updatePreviewVisibility(newWidth);
+        });
     </script>
 </body>
-</html> 
+</html>

@@ -60,11 +60,12 @@
         .preview-container {
             border: 2px dashed var(--border-color);
             border-radius: 6px;
-            overflow: visible;
+            overflow: hidden;
             position: relative;
             width: 1000px;
             max-width: 100%;
             margin: 0 auto;
+            line-height: 0;
         }
 
         #svgPreview {
@@ -258,6 +259,14 @@
             width: 16px;
             height: 16px;
         }
+
+        .preview #svgPreview {
+            display: block;
+            line-height: 0;
+            font-size: 0;
+            margin: 0;
+            padding: 0;
+        }
     </style>
 </head>
 <body>
@@ -346,74 +355,39 @@
         }
 
         function generateSVG(desktop, mobile) {
-            const aspectRatio = desktop.width / desktop.height;
-            const viewBoxHeight = 100 / aspectRatio;
-            
             return `
-                <div class="preview-wrapper" style="width: 100%; display: block; line-height: 0; font-size: 0;">
-                    <div style="position: relative; width: 100%; padding-bottom: calc(100% / ${aspectRatio}); overflow: hidden;">
-                        <svg xmlns="http://www.w3.org/2000/svg" 
-                            xmlns:xlink="http://www.w3.org/1999/xlink" 
-                            viewBox="0 0 ${desktop.width} ${desktop.height}"
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                            preserveAspectRatio="xMidYMid slice"
-                            role="img"
-                            class="desktop-view">
-                            <image width="${desktop.width}" height="${desktop.height}" 
-                                preserveAspectRatio="xMidYMid slice"
-                                xlink:href="${desktop.base64}" />
-                        </svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" 
-                            xmlns:xlink="http://www.w3.org/1999/xlink" 
-                            viewBox="0 0 ${mobile.width} ${mobile.height}"
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                            preserveAspectRatio="xMidYMid slice"
-                            role="img"
-                            class="mobile-view">
-                            <image width="${mobile.width}" height="${mobile.height}"
-                                preserveAspectRatio="xMidYMid slice"
-                                xlink:href="${mobile.base64}" />
-                        </svg>
-                    </div>
-                </div>`;
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                    xmlns:xlink="http://www.w3.org/1999/xlink" 
+                    width="${desktop.width}" height="${desktop.height}"
+                    class="desktop-view">
+                    <image width="${desktop.width}" height="${desktop.height}"
+                        xlink:href="${desktop.base64}" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                    xmlns:xlink="http://www.w3.org/1999/xlink" 
+                    width="${mobile.width}" height="${mobile.height}"
+                    class="mobile-view">
+                    <image width="${mobile.width}" height="${mobile.height}"
+                        xlink:href="${mobile.base64}" />
+                </svg>`;
         }
 
         function generateDownloadSVG(desktop, mobile) {
             const breakpoint = document.getElementById('breakpoint').value;
-            
             const includeSvgTitle = document.getElementById('includeSvgTitle').checked;
             const includeSvgDesc = document.getElementById('includeSvgDesc').checked;
             const svgTitle = document.getElementById('svgTitleInput').value;
             const svgDesc = document.getElementById('svgDescInput').value;
             
-            const titleAndDescAttrs = (includeSvgTitle || includeSvgDesc) 
-                ? `aria-labelledby="${[
-                    includeSvgTitle ? 'svgTitle' : '',
-                    includeSvgDesc ? 'svgDesc' : ''
-                  ].filter(Boolean).join(' ')}"` 
-                : '';
-            
             return `<svg xmlns="http://www.w3.org/2000/svg" 
                 xmlns:xlink="http://www.w3.org/1999/xlink" 
-                viewBox="0 0 ${desktop.width} ${desktop.height}"
-                preserveAspectRatio="xMidYMid slice"
-                role="img"
-                ${titleAndDescAttrs}>
+                width="${desktop.width}" height="${desktop.height}">
                 
-                ${includeSvgTitle ? `<title id="svgTitle">${svgTitle}</title>` : ''}
-                ${includeSvgDesc ? `<desc id="svgDesc">${svgDesc}</desc>` : ''}
+                ${includeSvgTitle ? `<title>${svgTitle}</title>` : ''}
+                ${includeSvgDesc ? `<desc>${svgDesc}</desc>` : ''}
                 
                 <defs>
-                    <style type="text/css">
-                        svg {
-                            width: 100%;
-                            height: 100%;
-                            display: block;
-                        }
-                        image {
-                            width: 100%;
-                            height: 100%;
-                        }
+                    <style>
                         @media (max-width: ${breakpoint}px) {
                             #desktop-image { display: none }
                             #mobile-image { display: block }
@@ -426,15 +400,13 @@
                 </defs>
                 
                 <g id="desktop-image">
-                    <image width="${desktop.width}" height="${desktop.height}" 
-                           preserveAspectRatio="xMidYMid slice"
-                           xlink:href="${desktop.base64}" />
+                    <image width="${desktop.width}" height="${desktop.height}"
+                        xlink:href="${desktop.base64}" />
                 </g>
                 
                 <g id="mobile-image">
-                    <image width="${mobile.width}" height="${mobile.height}" 
-                           preserveAspectRatio="xMidYMid slice"
-                           xlink:href="${mobile.base64}" />
+                    <image width="${mobile.width}" height="${mobile.height}"
+                        xlink:href="${mobile.base64}" />
                 </g>
             </svg>`;
         }
